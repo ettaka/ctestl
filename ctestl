@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+"""
+::
+
+  Run ctest with multiple labels. 
+
+"""
+import argparse
+import subprocess 
+import re
+
+parser = argparse.ArgumentParser(description='Run ctest with multiple labels') 
+
+parser.add_argument('labels', type=str, nargs = '+', help='label list to match the test labels')
+parser.add_argument('-N', action='store_true', default=False)
+
+args = parser.parse_args()
+labels = args.labels
+
+def parse_test_number_from_line(line):
+    words = line.split()
+    for word in words:
+        if '#' in word:
+            return word.split('#')[1]
+    return None
+
+tests=[]
+for label in labels:
+    p = subprocess.Popen(["ctest", "-L", label, "-N"], stdout=subprocess.PIPE)
+    ctest_out = p.communicate()
+    test_list = []
+    for word in ctest_out[0].split():
+        if '#' in word and ':' in word:
+            test_list.append(re.split('#|:',word)[1])
+    tests.append(set(test_list))
+
+test_num_str = "0,0,0,"+','.join(list(set.intersection(*tests)))
+cmd_list = ["ctest", "-I", test_num_str]
+if args.N == True: cmd_list.append("-N")
+
+p = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+for line in iter(p.stdout.readline, b''):
+    print line.strip('\n')
+p.stdout.close()  
+
+ 
+
+
+
+
