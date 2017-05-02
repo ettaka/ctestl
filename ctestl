@@ -17,13 +17,6 @@ parser.add_argument('-N', action='store_true', default=False)
 args = parser.parse_args()
 labels = args.labels
 
-def parse_test_number_from_line(line):
-    words = line.split()
-    for word in words:
-        if '#' in word:
-            return word.split('#')[1]
-    return None
-
 tests=[]
 for label in labels:
     p = subprocess.Popen(["ctest", "-L", label, "-N"], stdout=subprocess.PIPE)
