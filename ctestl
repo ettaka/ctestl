@@ -19,7 +19,7 @@ labels = args.labels
 
 tests=[]
 for label in labels:
-    p = subprocess.Popen(["ctest", "-L", label, "-N"], stdout=subprocess.PIPE)
+    p = subprocess.Popen(["ctest", "-L", "^"+label+"$", "-N"], stdout=subprocess.PIPE)
     ctest_out = p.communicate()
     test_list = []
     for word in ctest_out[0].split():
